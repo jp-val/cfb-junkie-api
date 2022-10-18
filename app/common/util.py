@@ -17,15 +17,15 @@ def generate_api_key():
 def get_season():
 	today = datetime.now()
 	year = int(today.strftime('%Y'))
-	return year-1 if int(today.strftime('%m')) < 8 else year
+	return year-1 if int(today.strftime('%m')) < 9 else year
 
 def get_year():
 	return int(datetime.now().strftime('%Y'))
 
 def get_week():
-	aug31 = datetime(get_year(), 8, 31)
+	start = datetime(get_year(), 8, 27)
 	today = datetime.now()
-	diff = (today-aug31).days
+	diff = (today-start).days
 	week = math.ceil(diff/7)
 	return 0 if week < 0 else week
 
@@ -34,7 +34,10 @@ def get_date():
 	return '-'.join([date.strftime('%Y'), date.strftime('%m'), date.strftime('%d')])
 
 if __name__ == '__main__':
-	print(generate_api_key())
-	print(get_date())
-	print(get_season())
-	print(get_week())
+	# print(generate_api_key())
+	# print(get_season())
+	# print(get_year())
+	# print(get_week())
+	# print(get_date())
+
+	print()
