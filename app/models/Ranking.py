@@ -3,13 +3,13 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 
-from app.models.PyObjectId import PyObjectId
+from .PyObjectId import PyObjectId
 
 class Ranking(BaseModel):
 	id: Optional[PyObjectId] = Field(None, alias='_id')
 	name: str
-	season: int
 	week: int
+	season: int
 	ranking: List[str]
 	date_added: datetime = Field(default_factory=datetime.utcnow)
 	date_updated: datetime = Field(default_factory=datetime.utcnow)

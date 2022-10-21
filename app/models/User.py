@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 
-from app.models.PyObjectId import PyObjectId
+from .PyObjectId import PyObjectId
 from app.common.util import generate_api_key
 
 class User(BaseModel):
@@ -13,8 +13,8 @@ class User(BaseModel):
 	email: str
 	domain: str
 	api_key: str = Field(default_factory=generate_api_key)
-	usage: List[dict] = Field([])
-	privilege: str = Field('user')
+	usage: List[dict] = []
+	privilege: str = 'user'
 	date_added: datetime = Field(default_factory=datetime.utcnow)
 
 	def get_json(self):
