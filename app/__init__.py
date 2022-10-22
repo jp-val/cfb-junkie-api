@@ -13,7 +13,9 @@ from app.resources.home import Home
 from app.resources.rankings import ( RankingById, RankingsQuery, RankingsLatest,
 	RankingsSeason, RankingUpload, RankingUpdate, RankingDelete )
 
-from app.resources.scrape import ScrapeRankings
+from app.resources.box_scores import BoxScoresQuery, BoxScoreUpload, ConferenceStanding
+
+from app.resources.scrape import ScrapeRankings, ScrapeAndUploadBoxScores, TeamStandingUpdate
 
 api.add_resource(Home, '/')
 
@@ -25,4 +27,10 @@ api.add_resource(RankingUpload, '/upload-ranking')
 api.add_resource(RankingUpdate, '/update-ranking')
 api.add_resource(RankingDelete, '/delete-ranking/<string:ranking_id>')
 
+api.add_resource(BoxScoresQuery, '/box-scores/')
+api.add_resource(BoxScoreUpload, '/upload-box-score')
+api.add_resource(ConferenceStanding, '/get-conference-standing/<int:season>/<string:conference_name>')
+
 api.add_resource(ScrapeRankings, '/scrape-ranking/<string:ranking_name>')
+api.add_resource(ScrapeAndUploadBoxScores, '/scrape-and-upload-box-scores/<int:season>/<int:week>')
+api.add_resource(TeamStandingUpdate, '/update-standings/<int:season>/<int:week>')
