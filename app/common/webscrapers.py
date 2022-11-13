@@ -219,8 +219,8 @@ def scrape_box_score(date, week, away_team, home_team):
 		box_score['home_team_points_scored'] = [eval(score) for score in box_score['home_team_points_scored']]
 
 		for i in range(29):
-			box_score['away_team_statistics'][consts.cbs_statistics_rename[stats[i][0]]] = stats[i][1]
-			box_score['home_team_statistics'][consts.cbs_statistics_rename[stats[i][0]]] = stats[i][2]
+			box_score['away_team_statistics'][consts.statistics_rename[stats[i][0]]] = stats[i][1]
+			box_score['home_team_statistics'][consts.statistics_rename[stats[i][0]]] = stats[i][2]
 		
 	except:
 		return (None, 'probably index out of bounds')
@@ -233,21 +233,62 @@ def scrape_box_score(date, week, away_team, home_team):
 			tmp_arr = box_score[t]['fourth_down_conversion'].split('-')
 			box_score[t]['fourth_down_conversion'] = eval(tmp_arr[0]) / eval(tmp_arr[1]) if eval(tmp_arr[1]) > 0 else 1.0
 
-			for key in consts.cbs_statistics_rename.keys():
+			for key in consts.statistics_rename.keys():
 				if key.find('-') > -1:
-					tmp_arr_keys = consts.cbs_statistics_rename[key].split('-')
-					tmp_arr_values = box_score[t][consts.cbs_statistics_rename[key]].split('-')
+					tmp_arr_keys = consts.statistics_rename[key].split('-')
+					tmp_arr_values = box_score[t][consts.statistics_rename[key]].split('-')
 					if len(tmp_arr_values) >= 3 and tmp_arr_values[1] == '':
 						tmp_arr_values[-1] = '-' + tmp_arr_values[-1]
 
 					box_score[t][tmp_arr_keys[0]] = eval(tmp_arr_values[0])
 					box_score[t][tmp_arr_keys[1]] = eval(tmp_arr_values[-1])
 
-					box_score[t].pop(consts.cbs_statistics_rename[key])
+					box_score[t].pop(consts.statistics_rename[key])
 
-				elif type(box_score[t][consts.cbs_statistics_rename[key]]) is str:
-					box_score[t][consts.cbs_statistics_rename[key]] = eval(box_score[t][consts.cbs_statistics_rename[key]])
+				elif type(box_score[t][consts.statistics_rename[key]]) is str:
+					box_score[t][consts.statistics_rename[key]] = eval(box_score[t][consts.statistics_rename[key]])
 	except:
 		return (None, 'probably eval failure')
 
 	return (box_score, None)
+
+def scrape_game_results(year, week):
+
+  url = "https://www.sports-reference.com/cfb/years/{}-schedule.html".format(year)
+
+  response = requests.get(url)
+  soup = BeautifulSoup(response.content, 'html.parser')
+
+  rows = soup.findAll('tr', class_ = lambda table_rows: table_rows != "thread")
+  stats = [[td.getText() for td in rows[i].findAll('td')] for i in range(len(rows))]
+
+  def reformat(game):
+    junk_str = '\xa0'
+    team_name_indexes = [4, 7]
+
+    for j in team_name_indexes:
+      index = game[j].find(junk_str)
+      if index > -1:
+        game[j] = game[j][index+len(junk_str):]
+    
+    week_index = 0
+    winner_index = 4
+    winner_score_index = 5
+    location_index = 6
+    loser_index = 7
+    loser_score_index = 8
+
+    info = {
+      'week': eval(game[week_index])-1 if eval(game[week_index]) > 1 else 1,
+      'winner': consts.official_name_replacement.get(game[winner_index], game[winner_index]),
+      'winner_score': eval(game[winner_score_index]),
+      'location': game[location_index],
+      'loser': consts.official_name_replacement.get(game[loser_index], game[loser_index]),
+      'loser_score': eval(game[loser_score_index]),
+    }
+
+    return info
+
+  stats = [reformat(g) for g in stats if len(g) >= 10 and eval(g[0]) == week+1]
+
+  return stats
